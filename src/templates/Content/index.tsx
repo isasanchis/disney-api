@@ -8,7 +8,7 @@ const Content: React.FC = () => {
   const [character, setCharacter] = useState<Character[]>([]);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<any>();
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [search, setSearch] = useState<string>("");
 
   useEffect(() => {
     axios.get(`https://api.disneyapi.dev/characters?page=${page}`)
@@ -19,17 +19,20 @@ const Content: React.FC = () => {
       )
   }, [page]);
 
+  const filteredCharacters = search.length > 0 ? character.filter(char => char.name.includes(search)) : [];
+
   return (
     <>
-      <input type="text" onChange={e => setSearchTerm(e.target.value)} />
+      <input type="text" name="search" onChange={e => setSearch(e.target.value)} value={search} />
       <C.Content>
-        {character.filter((char) => {
-          if(searchTerm === "") {
-            return char
-          } else if (char.name.toLowerCase().includes(searchTerm.toLowerCase())) {
-            return char.imageUrl
-          }
-        }).map((char) => (
+        {search.length > 0 ? filteredCharacters.map(char => {
+          return (
+          <div className="char-container" key={char.id}>
+            <img src={char.imageUrl} alt="" />
+            <p>{char.name}</p>
+            <p><i>{char.tvShows !== [] ? char.tvShows : char.films}</i></p>
+          </div>
+        )}) : character.map(char => (
           <div className="char-container" key={char.id}>
             <img src={char.imageUrl} alt="" />
             <p>{char.name}</p>
